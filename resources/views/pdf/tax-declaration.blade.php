@@ -10,8 +10,8 @@ $totalValue = $properties->area * $properties->market_value_data * ($properties-
 <title>Tax Declaration</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-family: "DejaVu Sans", Arial, sans-serif;
+    font-size: 10px;
     margin: 25px;
   }
 
@@ -131,6 +131,14 @@ $totalValue = $properties->area * $properties->market_value_data * ($properties-
     vertical-align: middle;
     margin: 0;
   }
+  .field_xxxl {
+      display: inline-block;
+      border-bottom: 1px solid black;
+      min-width: 100%;
+      padding: 0 3px 2px 3px;
+      line-height: 1.2;
+      vertical-align: bottom;
+    }
 </style>
 </head>
 <body>
@@ -299,12 +307,12 @@ $totalValue = $properties->area * $properties->market_value_data * ($properties-
         <td><span class="field_sm label text-center">Value</span></td>
       </tr>
       <tr>
-        <td><span class="field_sm text-center"><?= $properties->property_classification ?></span></td>
+        <td><span class="field_sm text-center"><?= $properties->property_classification ?? "" ?></span></td>
         <td><span class="field_sm text-center"><?= $properties->area ?>sq. m.</span></td>
-        <td><span class="field_sm text-center"><?= number_format(($properties->area * $properties->market_value_data), 2) ?></span></td>
+        <td><span class="field_sm text-center">₱ <?= number_format(($properties->area * $properties->market_value_data), 2) ?></span></td>
         <td><span class="field_sm text-center"><?= $properties->ActualUse ?></span></td>
         <td><span class="field_xs text-center"><?= $properties->assessment_rate ?>%</span></td>
-        <td><span class="field_sm text-center"><?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></span></td>
+        <td><span class="field_sm text-center"> ₱ <?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></span></td>
       </tr>
       <tr>
         <td><span class="field_sm mt-2 text-center"></span></td>
@@ -325,20 +333,20 @@ $totalValue = $properties->area * $properties->market_value_data * ($properties-
       <tr>
         <td><span></span></td>
         <td><span class="label">TOTAL</span></td>
-        <td><span class="field_sm text-center"><?= number_format(($properties->area * $properties->market_value_data), 2) ?></span></td>
+        <td><span class="field_sm text-center">₱ <?= number_format(($properties->area * $properties->market_value_data), 2) ?></span></td>
         <td><span></span></td>
         <td><span></span></td>
-        <td><span class="field_sm text-center"><?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></span></td>
+        <td><span class="field_sm text-center">₱ <?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></span></td>
       </tr>
     </table>
   </div>
-  <div style="margin-top: 20px;">
+  <div style="margin-top: 10px;">
     Total Assessed Value:
     <span class="field_xxl text-center">
     {{ convertNumberToWords($totalValue)}}
     </span>
     <span style="margin-left: 350px;">(Amount in Words)</span>
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 30px;">
       <table>
         <tr>
           <td>
@@ -353,10 +361,10 @@ $totalValue = $properties->area * $properties->market_value_data * ($properties-
             Effectivity of Assessment/Reassessment
           </td>
           <td>
-            <span class="field_xxs text-center">2</span>
+            <span class="field_xxs text-center"></span>
           </td>
           <td>
-            <span class="field_xs text-center">2025</span>
+            <span class="field_xs text-center"></span>
           </td>
         </tr>
       </table>
@@ -364,15 +372,15 @@ $totalValue = $properties->area * $properties->market_value_data * ($properties-
     </div>
 
   </div>
-  <div style="margin-top: 20px;">RECOMMENDED BY:</div>
-  <table style="margin-top: 20px;">
+  <div style="margin-top: 10px;">RECOMMENDED BY:</div>
+  <table style="margin-top: 10px;">
     <tr>
       <td><span class="label">APPROVED BY:</span></td>
       <td>
-        <span class="field_md text-center label">MILAGROS F. ROBLEDO R.E.A</span>
+        <span class="field_md text-center label"><?= $OIC_Municilap_Assessor->fullname ?></span>
       </td>
       <td>
-        <span class="field_md text-center label">SHARLO ABADIEZ BOLDIOS</span>
+        <span class="field_md text-center label"><?= $properties->fullname ?></span>
       </td>
       <td>
         <span class="field_xxs text-center label"><?= date("d/m/Y", strtotime(now())); ?></span>
@@ -392,6 +400,18 @@ $totalValue = $properties->area * $properties->market_value_data * ($properties-
     </tr>
   </table>
 
+   <div class="mt-1">
+    <span class="field_xxxl"></span>
+    <span class="field_xxxl"></span>
+    <span class="field_xxxl"></span>
+    <span class="field_xxxl"></span>
+    <span class="field_xxxl"></span>
+  </div>
+ <div class="mt-1" >
+    <p style="font-size: 9px;">
+      Note: This declaration is for real property taxation purposes only and the valuation indicated herein are based on the schedule of unit market values prepared for the purpose and duly enacted into an Ordinance by the Sangguniang ____________________ under Ordinance No. ______ dated ____, 20. It does not and cannot by itself alone confer any ownership or legal title to the property.
+    </p>
+  </div>
 </div>
 </body>
 </html>

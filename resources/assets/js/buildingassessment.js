@@ -134,6 +134,7 @@ $(document).ready(function () {
       $('#totalValue').text(formatAbbreviatedPHP(displayTotal));
       const row = `
             <tr>
+              <td>${property.parcel_id}</td>
               <td>
               <div>${property.owner}</div>
               <div class="text-muted">${property.lot_number}</div>
@@ -158,7 +159,7 @@ $(document).ready(function () {
                               <i class="ri-more-2-line"></i>
                           </button>
                           <div class="dropdown-menu">
-                              <a href="/building-assessment/pdf/${property.property_id}"
+                              <a href="/building-assessment/pdf/${property.ids}"
                                 target="_blank"
                                 class="dropdown-item assess">
                                   View

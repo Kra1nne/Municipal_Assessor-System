@@ -73,7 +73,7 @@
     <div class="navbar-nav align-items-start">
       <div class="nav-item d-flex align-items-center">
         <i class="ri-search-line ri-22px me-1_5"></i>
-        <input type="search" id="search" class="form-control mt-3 border-0 shadow-none ps-1 ps-sm-2 ms-50" placeholder="Search land number..." aria-label="Search...">
+        <input type="search" id="search" class="form-control mt-3 border-0 shadow-none ps-1 ps-sm-2 ms-50" placeholder="Search name..." aria-label="Search...">
       </div>
     </div>
     <div class="navbar-nav flex-row align-items-center ms-auto gap-5">

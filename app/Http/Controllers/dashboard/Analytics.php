@@ -10,6 +10,7 @@ use App\Models\Property;
 use App\Models\Requests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
 
 class Analytics extends Controller
 {
@@ -60,9 +61,11 @@ class Analytics extends Controller
   }
   public function logslist(){
     $log = Log::leftjoin('users', 'logs.user_id', '=', 'users.id')
-                ->leftjoin('person', 'users.person_id', '=', 'person.id')
-                ->orderby('logs.created_at', 'desc')
-                ->get();
+          ->leftjoin('person', 'users.person_id', '=', 'person.id')
+          ->where('logs.created_at', '>=', Carbon::now()->subDays(30))
+          ->orderBy('logs.created_at', 'desc')
+          ->get();
+
 
     return view('content.logs-list.account-log',compact('log'));
   }

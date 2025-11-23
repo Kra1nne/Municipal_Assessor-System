@@ -49,7 +49,8 @@ $(document).ready(function () {
       { id: 'firstname', label: 'First Name' },
       { id: 'lastname', label: 'Last Name' },
       { id: 'phone', label: 'Phone Number' },
-      { id: 'address', label: 'Address' }
+      { id: 'address', label: 'Address' },
+      { id: 'role', label: 'Position' }
     ];
     const isValid = validateForm(fields);
     if (!isValid) {
@@ -109,6 +110,7 @@ $(document).ready(function () {
           <td>${assessor.firstname} ${assessor.lastname}</td>
           <td>${assessor.address}</td>
           <td>${assessor.phone}</td>
+          <td>${assessor.role}</td>
           <td><span class="badge bg-label-success">${assessor.status}</span></td>
           <td>
             <div class="dropdown">
@@ -121,6 +123,7 @@ $(document).ready(function () {
                   data-lastname="${assessor.lastname}"
                   data-phone="${assessor.phone}"
                   data-address="${assessor.address}"
+                  data-role="${assessor.role}"
                   >
                   <i class="ri-pencil-line me-1"></i> Edit
                 </a>
@@ -160,6 +163,7 @@ $(document).ready(function () {
     const lastname = $(this).data('lastname');
     const phone = $(this).data('phone');
     const address = $(this).data('address');
+    const role = $(this).data('role');
 
     $('#Edit_encrypted_id').val(id);
     $('#Edit_firstname').val(firstname);
@@ -167,6 +171,7 @@ $(document).ready(function () {
     $('#Edit_lastname').val(lastname);
     $('#Edit_phone').val(phone);
     $('#Edit_address').val(address);
+    $('#Edit_role').val(role);
   });
 
   // Update assessor
@@ -175,7 +180,8 @@ $(document).ready(function () {
       { id: 'Edit_firstname', label: 'First Name' },
       { id: 'Edit_lastname', label: 'Last Name' },
       { id: 'Edit_phone', label: 'Phone Number' },
-      { id: 'Edit_address', label: 'Address' }
+      { id: 'Edit_address', label: 'Address' },
+      { id: 'Edit_role', label: 'Position' }
     ];
     const isValid = validateForm(fields);
     if (!isValid) {

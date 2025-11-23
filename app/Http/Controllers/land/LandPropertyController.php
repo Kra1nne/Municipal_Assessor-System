@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\Requests;
 use App\Models\Log;
 use App\Models\Property;
+use App\Models\Assessor;
 
 class LandPropertyController extends Controller
 {
@@ -76,14 +77,20 @@ class LandPropertyController extends Controller
         ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
         ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
         ->leftjoin('request', 'request.assessment_id', '=', 'assessment.id')
-        ->select('assessor.*', 'properties.property_type as property_classification','properties.*', 'assessment.id as assessment_id', 'assessment.date as assessment_date', 'market_value.value as market_value_data', 'property_type.assessment_rate', 'properties.status as property_status', 'property_list.name as ActualUse', 'properties.created_at as created_at', 'assessment.*', 'properties.address as property_address')
+        ->select('assessor.*', 'property_list.name as property_classification','properties.*', 'assessment.id as assessment_id', 'assessment.date as assessment_date', 'market_value.value as market_value_data', 'property_type.assessment_rate', 'properties.status as property_status', 'property_list.name as ActualUse', 'properties.created_at as created_at', 'assessment.*', 'properties.address as property_address')
         ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
         ->where('assessment.id', '=', Crypt::decryptString($id))
         ->whereNull('assessment.deleted_at')
         ->orderBy('properties.created_at', 'Desc')->first();
 
+      $OIC_Municilap_Assessor = Assessor::where('role', '=', 'OIC Municilap Assessor')
+                                ->whereNull('deleted_at')
+                                ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
+                                ->first();
+
       $pdf = Pdf::loadView('pdf.tax-declaration', [
-          'properties' => $properties
+          'properties' => $properties,
+          'OIC_Municilap_Assessor' => $OIC_Municilap_Assessor
       ]);
 
       return $pdf->setPaper('A4', 'portrait')

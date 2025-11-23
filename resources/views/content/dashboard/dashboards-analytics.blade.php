@@ -205,6 +205,7 @@
         <table class="table table-sm">
           <thead>
             <tr>
+              <th class="text-truncate">Parcel ID</th>
               <th class="text-truncate">Lot Number</th>
               <th class="text-truncate">Address</th>
               <th class="text-truncate">Type</th>
@@ -217,6 +218,7 @@
           <tbody>
             @foreach ($properties as $item)
             <tr>
+              <td>{{ $item->parcel_id ?? "" }}</td>
               <td>
                 {{ $item->lot_number ?? "" }}
               </td>

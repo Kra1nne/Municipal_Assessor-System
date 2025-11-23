@@ -88,6 +88,7 @@
     <table class="table table-hover">
       <thead class="position-sticky top-0 bg-body">
         <tr>
+          <th>Parcel ID</th>
           <th>Land Property</th>
           <th>Number of Storey</th>
           <th>Building Type</th>

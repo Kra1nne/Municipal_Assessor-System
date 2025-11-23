@@ -87,6 +87,7 @@
     <table class="table table-hover">
       <thead class="position-sticky top-0 bg-body">
         <tr>
+          <th>Parcel ID</th>
           <th>Lot Number</th>
           <th>Address</th>
           <th>Type</th>

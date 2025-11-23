@@ -108,6 +108,7 @@ $(document).ready(function () {
 
       const row = `
             <tr>
+                <td>${property.parcel_id}</td>
                 <td><div class="text-muted">${property.lot_number}</div></td>
                 <td>${property.firstname ?? ''} ${property.lastname ?? ''}</td>
                 <td>${property.area} sq. m</td>

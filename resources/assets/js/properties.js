@@ -151,13 +151,14 @@ $(document).ready(function () {
     const $propertyList = $('#propertylist');
 
     if (properties.length === 0 && page === 1) {
-      $propertyList.html(`<tr><td colspan="8" class="text-center text-muted">No properties found.</td></tr>`);
+      $propertyList.html(`<tr><td colspan="7" class="text-center text-muted">No properties found.</td></tr>`);
       return;
     }
 
     properties.forEach(property => {
       const row = `
             <tr>
+                <td>${property.parcel_id ?? 'N/A'}</td>
                 <td>${property.lot_number ?? 'N/A'}</td>
                 <td>${property.property_address ?? ''}</td>
                 <td>${property.property_type ?? ''}</td>

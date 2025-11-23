@@ -6,8 +6,8 @@
 <title>Real Property Field Appraisal & Assessment Sheet - Land / Other Improvements</title>
 <style>
     body {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
+        font-family: "DejaVu Sans", Arial, sans-serif;
+        font-size: 10px;
         color: #000;
         margin: 30px;
     }
@@ -126,6 +126,14 @@
       line-height: 1.2;
       vertical-align: bottom;
     }
+    .field_xxl {
+      display: inline-block;
+      border-bottom: 1px solid black;
+      min-width: 100%;
+      padding: 0 3px 2px 3px;
+      line-height: 1.2;
+      vertical-align: bottom;
+    }
 </style>
 </head>
 <body>
@@ -141,7 +149,7 @@
 <table>
     <tr>
         <td width="50%">ARP No.: <b><?= $properties->arp_no ?></b></td>
-        <td>PIN: <b></b><?= $properties->pin ?></td>
+        <td>PIN: <b><?= $properties->pin ?></b></td>
     </tr>
     <tr>
         <td>OCT/TCT/CLOA No.: <span><?= $properties->otc ?></span></td>
@@ -153,7 +161,7 @@
     </tr>
     <tr>
         <td>Address: <b><?= $properties->address ?></b></td>
-        <td>TIN: <b></b><?= $properties->tin?></td>
+        <td>TIN: <b><?= $properties->tin?></b></td>
     </tr>
     <tr>
         <td>Administrator/Beneficial User: <span></span></td>
@@ -167,7 +175,7 @@
 
 
 <!-- Property Location -->
- <div class="mt-2 display"><b>Property Location</b></div>
+ <div class="mt-1 display"><b>Property Location</b></div>
 <table>
     <tr>
         <td>No./Street: <span><?= $properties->street ?></span></td>
@@ -207,8 +215,8 @@
         <td><?= $properties->property_classification ?></td>
         <td><?= $properties->sub_classification ?></td>
         <td><?= $properties->area ?> sq.m</td>
-        <td class="right"><?= $properties->market_value_data ?></td>
-        <td class="right"><?= number_format(($properties->area * $properties->market_value_data), 2) ?></td>
+        <td class="right">₱ <?= $properties->market_value_data ?></td>
+        <td class="right">₱ <?= number_format(($properties->area * $properties->market_value_data), 2) ?></td>
     </tr>
     <tr>
       <td class="blank"></td>
@@ -233,14 +241,14 @@
     </tr>
     <tr>
         <td colspan="4" class="right"><b>Total</b></td>
-        <td class="right"><b><?= number_format(($properties->area * $properties->market_value_data), 2) ?></b></td>
+        <td class="right"><b>₱ <?= number_format(($properties->area * $properties->market_value_data), 2) ?></b></td>
     </tr>
 </table>
 <div>
   Adjustment Factor:
 </div>
 <!-- Other Improvements -->
- <div class="mt-2 display">
+ <div class="mt-1 display">
   <b>Other Improvements</b>
  </div>
 <table>
@@ -308,9 +316,9 @@
     </tr>
     <tr>
         <td><?= $properties->ActualUse ?></td>
-        <td><?= number_format(($properties->area * $properties->market_value_data), 2) ?></td>
+        <td>₱ <?= number_format(($properties->area * $properties->market_value_data), 2) ?></td>
         <td><?= $properties->assessment_rate ?>%</td>
-        <td><?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></td>
+        <td>₱ <?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></td>
     </tr>
     <tr>
       <td class="blank"></td>
@@ -332,7 +340,7 @@
     </tr>
     <tr>
         <td colspan="3" class="right"><b>Total</b></td>
-        <td><?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></td>
+        <td>₱ <?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></td>
     </tr>
    <tr>
       <td class="border-rg">
@@ -374,17 +382,17 @@
 </div>
 <table class="mt-1">
     <tr>
-        <td colspan="2">PIN:</td>
+        <td colspan="2">PIN: <b><?= $properties->pin?></b></td>
     </tr>
     <tr>
-      <td>ARP No.</td>
+      <td>ARP No. <b><?= $properties->arp_no?></b></td>
       <td>TD No.</td>
     </tr>
     <tr>
-      <td colspan="2">Total Assessed Value: </td>
+      <td colspan="2">Total Assessed Value: <b>₱ <?= number_format(($properties->area * $properties->market_value_data * ($properties->assessment_rate / 100)), 2) ?></b></td>
     </tr>
     <tr>
-      <td colspan="2">Previous Owner:</td>
+      <td colspan="2">Previous Owner: <b><?= $properties->previous_owner ?></b></td>
     </tr>
     <tr>
       <td colspan="2">Effectivity of Assessment:</td>
@@ -407,9 +415,9 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
    <span><b>Recommending Approval:</b></span>
   </div>
-  <div class="mt-2">
+  <div class="mt-1">
     <div>
-      <span style="margin-left: 20px;" class="field_sm text-center"></span>
+      <span style="margin-left: 20px;" class="field_sm text-center"><?= $Assessment_Clerk_1->fullname ?></span>
       <span style="margin-left: 20px;" class="field_xs text-center"><?= date("d/m/Y", strtotime(now())); ?></span>
       <span style="margin-left: 60px;" class="field_sm text-center"><?=  $properties->fullname?></span>
       <span style="margin-left: 20px;" class="field_xs text-center"><?= date("d/m/Y", strtotime(now())); ?></span>
@@ -431,12 +439,12 @@
       </span>
     </div>
   </div>
-  <div style="margin-top: 30px;">
+  <div style="margin-top: 15px;">
     <span class="display"><b>Approved by:</b></span>
   </div>
   <div class="mt-2">
     <div>
-      <span style="margin-left: 70px;" class="field_sm text-center">MILAGROS F. ROBLEDO R.E.A</span>
+      <span style="margin-left: 70px;" class="field_sm text-center"><?= $OIC_Municilap_Assessor->fullname ?></span>
       <span style="margin-left: 180px;" class="field_xs text-center"><?= date("d/m/Y", strtotime(now())); ?></span>
     </div>
   </div>
@@ -449,6 +457,17 @@
         Date
       </span>
     </div>
+  </div>
+  <div class="mt-1">
+    <span class="field_xxl"></span>
+    <span class="field_xxl"></span>
+    <span class="field_xxl"></span>
+    <span class="field_xxl"></span>
+    <span class="field_xxl"></span>
+    <span class="field_xxl"></span>
+  </div>
+  <div class="mt-1">
+     <div>Data of Entry in the Record of the Assessment <span style="margin-left: 99px;" class="field_xxs text-center"></span> By: <span style="margin-left: 5px;" class="field_sm text-center"></span></div>
   </div>
 </div>
 </body>

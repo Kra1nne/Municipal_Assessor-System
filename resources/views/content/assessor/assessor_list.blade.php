@@ -28,6 +28,7 @@
           <th>Name</th>
           <th>Address</th>
           <th>Phone</th>
+          <th>Position</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
@@ -72,10 +73,23 @@
               <input type="number" max="11" class="form-control" id="phone" name="phone" placeholder="Enter phone number..." autofocus>
               <label for="phone">Phone Number</label>
             </div>
+
+            <div class="form-floating form-floating-outline mb-4">
+              <select class="form-select" id="role" name="role" aria-label="Default select example">
+                <option value="" selected disabled>Select Position</option>
+                <option value="Assessor">Assessor</option>
+                <option value="OIC Municilap Assessor">OIC Municilap Assessor</option>
+                <option value="Technical Supervisor">Technical Supervisor</option>
+                <option value="Assessment Clerk 1">Assessment Clerk 1</option>
+              </select>
+              <label for="role">Role</label>
+            </div>
+
             <div class="form-floating form-floating-outline mb-5">
               <input type="text" class="form-control" id="address" name="address" placeholder="Enter property address..." autofocus>
               <label for="address">Address</label>
             </div>
+
 
           </form>
         </div>
@@ -122,6 +136,16 @@
               <input type="number" max="11" class="form-control" id="Edit_phone" name="phone" placeholder="Enter phone number..." autofocus>
               <label for="Edit_phone">Phone Number</label>
             </div>
+            <div class="form-floating form-floating-outline mb-4">
+              <select class="form-select" id="Edit_role" name="role" aria-label="Default select example">
+                <option value="" selected disabled>Select Position</option>
+                <option value="Assessor">Assessor</option>
+                <option value="OIC Municilap Assessor">OIC Municilap Assessor</option>
+                <option value="Technical Supervisor">Technical Supervisor</option>
+                <option value="Assessment Clerk 1">Assessment Clerk 1</option>
+              </select>
+              <label for="role">Role</label>
+            </div>
             <div class="form-floating form-floating-outline mb-5">
               <input type="text" class="form-control" id="Edit_address" name="address" placeholder="Enter property address..." autofocus>
               <label for="Edit_address">Address</label>
@@ -147,6 +171,7 @@
       'phone' => $assessor->phone,
       'status' => $assessor->status,
       'created_at' => $assessor->created_at->format('M d, Y'),
+      'role' => $assessor->role,
   ];
   })->values()->toArray();
 @endphp

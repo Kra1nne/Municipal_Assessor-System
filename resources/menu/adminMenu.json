@@ -68,7 +68,7 @@
     },
     {
       "url": "/assessor",
-      "name": "Assessors",
+      "name": "Assessor",
       "icon": "menu-icon tf-icons ri-user-star-line",
       "slug": "assessor-accounts"
     },

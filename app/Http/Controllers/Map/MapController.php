@@ -27,31 +27,105 @@ class MapController extends Controller
 
         return '₱' . $formatted;
     }
+
     public function index()
     {
-        $countall = Property::count();
-        $countReview = Property::where('status', '=', 'Under Review')->count();
-        $countComplete = Property::where('status', '=', 'Complete')->count();
+
+        $role = Auth::user()->role;
+
+        if ($role == "Admin" || $role == "Employee") {
+
+          $countall = Property::count();
+          $countReview = Property::where('status', '=', 'Under Review')->count();
+          $countComplete = Property::where('status', '=', 'Complete')->count();
+
+          $properties = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+              ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
+              ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
+              ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
+              ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
+              ->select(
+                  'properties.*',
+                  'properties.address as property_address',
+                  'assessment.id as assessment_id',
+                  'assessment.date as assessment_date',
+                  'assessor.*',
+                  'market_value.value as market_value_data',
+                  'property_type.assessment_rate',
+                  'properties.status as property_status',
+                  'property_list.name as ActualUse',
+                  'properties.id as property_id'
+              )
+              ->whereNull('properties.deleted_at')
+              ->orderBy('properties.created_at', 'Desc')
+              ->get();
+
+          $totalAssessedValue = $properties
+            ->where('property_status', 'Complete')
+            ->sum(function ($item) {
+                return $item->area * $item->market_value_data * ($item->assessment_rate / 100);
+            });
+
+        } else {
+            // USER: only properties requested by them
+
+            $countall = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+                ->leftjoin('request', 'request.assessment_id', '=', 'assessment.id')
+                ->where('request.users_id', Auth::id())
+                ->count();
+            $countReview = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+                ->leftjoin('request', 'request.assessment_id', '=', 'assessment.id')
+                ->where('request.users_id', Auth::id())
+                ->where('request.status', '=', 'Under Review')
+                ->count();
+            $countComplete = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+                ->leftjoin('request', 'request.assessment_id', '=', 'assessment.id')
+                ->where('request.users_id', Auth::id())
+                ->where('request.status', '=', 'Success')
+                ->count();
+
+            $properties = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+                ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
+                ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
+                ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
+                ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
+                ->leftjoin('request', 'request.assessment_id', '=', 'assessment.id')
+                ->select(
+                    'properties.*',
+                    'properties.address as property_address',
+                    'assessment.id as assessment_id',
+                    'assessment.date as assessment_date',
+                    'assessor.*',
+                    'market_value.value as market_value_data',
+                    'property_type.assessment_rate',
+                    'properties.status as property_status',
+                    'property_list.name as ActualUse',
+                    'properties.id as property_id'
+                )
+                ->whereNull('properties.deleted_at')
+                ->where('request.users_id', Auth::id())
+                ->orderBy('properties.created_at', 'Desc')
+                ->get();
+
+            $totalAssessedValue = $properties
+              ->where('property_status', 'Complete')
+              ->sum(function ($item) {
+                  return $item->area * $item->market_value_data * ($item->assessment_rate / 100);
+              });
+        }
 
 
-        $properties = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
-                              ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
-                              ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
-                              ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
-                              ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
-                              ->select('properties.*', 'properties.address as property_address', 'assessment.id as assessment_id', 'assessment.date as assessment_date', 'assessor.*', 'market_value.value as market_value_data', 'property_type.assessment_rate', 'properties.status as property_status', 'property_list.name as ActualUse', 'properties.id as property_id')
-                              ->whereNull('properties.deleted_at')->orderBy('properties.created_at', 'Desc')->get();
-
-        $totalAssessedValue = $properties
-          ->where('property_status', 'Complete')
-          ->sum(function ($item) {
-              return $item->area * $item->market_value_data * ($item->assessment_rate / 100);
-          });
         $total = $this->formatAbbreviatedPHP($totalAssessedValue);
+
         return view('content.map.gis', compact('countall', 'countReview', 'countComplete', 'total'));
     }
 
-    // Lazy-loading endpoint
+
+
+
+    // ------------------------------------------------------------
+    // LAZY LOADING OF MAP PARCELS (FILTER BY USER ACCESS)
+    // ------------------------------------------------------------
     public function getParcels(Request $request)
     {
         if (!$request->bbox) {
@@ -59,18 +133,32 @@ class MapController extends Controller
         }
 
         $bbox = explode(',', $request->bbox);
-
-        // [minLon, minLat, maxLon, maxLat]
         [$minLon, $minLat, $maxLon, $maxLat] = $bbox;
 
-        // Load GeoJSON once
         $geojsonPath = public_path('geojson/inopacan_geojson.geojson');
         $geoData = json_decode(file_get_contents($geojsonPath), true);
 
-        // Load DB properties as HashMap keyed by lot number
-        $properties = Property::select('lot_number', 'owner')
-            ->get()
-            ->keyBy('lot_number');
+        $role = Auth::user()->role;
+
+        // --------------------------
+        // ADMIN & EMPLOYEE → ALL DATA
+        // --------------------------
+        if ($role == "Admin" || $role == "Employee") {
+            $properties = Property::select('lot_number', 'owner', 'parcel_id')
+                ->get()
+                ->keyBy('parcel_id');
+        } else {
+            $properties = Property::leftJoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+                ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
+                ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
+                ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
+                ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
+                ->leftjoin('request', 'request.assessment_id', '=', 'assessment.id')
+                ->where('request.users_id', Auth::id())
+                ->select('properties.lot_number', 'properties.owner', 'properties.parcel_id')
+                ->get()
+                ->keyBy('parcel_id');
+        }
 
         $filtered = [];
 
@@ -80,9 +168,8 @@ class MapController extends Controller
             if (!$geometry) continue;
 
             $coordinates = $geometry['coordinates'] ?? null;
-            if (!$coordinates || !is_array($coordinates) || empty($coordinates)) continue;
+            if (!$coordinates) continue;
 
-            // Support Polygon or MultiPolygon
             $firstCoord = null;
             if ($geometry['type'] === 'Polygon') {
                 $firstCoord = $coordinates[0][0] ?? null;
@@ -95,46 +182,33 @@ class MapController extends Controller
             $lon = $firstCoord[0];
             $lat = $firstCoord[1];
 
-            // Check if inside bbox
+            // Check if inside BBOX
             if (
                 $lon >= $minLon && $lon <= $maxLon &&
                 $lat >= $minLat && $lat <= $maxLat
             ) {
-                $lot = $feature['properties']['LotNumber'] ?? null;
+                $lot = $feature['properties']['ID'] ?? null;
 
+                // Only attach owner if user has permission
                 if ($lot && isset($properties[$lot])) {
                     $feature['properties']['Owner'] = $properties[$lot]->owner;
-                }
-
-
-                // Add a condition if the role is a User
-
-                if(Auth::user()->role == "Admin" || Auth::user()->role == "Employee"){
-                  $filtered[] = $feature;
-                }
-                else{
-                  $OwnLand = Requests::leftjoin('assessment', 'assessment.id', '=', 'request.assessment_id')
-                             ->leftjoin('properties', 'properties.id', '=', 'assessment.id')
-                             ->where('user_id', '=', Auth::id())
-                             -select('lot_number', 'owner')
-                             ->get()
-                             ->keyBy('lot_number');
-
-                  if($feature['properties']['LotNumber'] == $OwnLand->lot_number){
                     $filtered[] = $feature;
-                  }
-
                 }
-
             }
         }
-
 
         return [
             "type" => "FeatureCollection",
             "features" => $filtered
         ];
     }
+
+
+
+
+    // ------------------------------------------------------------
+    // SEARCH LOT (FILTER BY USER ACCESS)
+    // ------------------------------------------------------------
     public function searchLot(Request $request)
     {
         $lot = $request->lot_number;
@@ -142,19 +216,40 @@ class MapController extends Controller
             return response()->json(['error' => 'Lot number required'], 400);
         }
 
+        $role = Auth::user()->role;
+
+        if ($role == "Admin" || $role == "Employee") {
+            $properties = Property::select('lot_number', 'owner')->get()->keyBy('lot_number');
+        } else {
+
+            $properties = Property::leftJoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+                ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
+                ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
+                ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
+                ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
+                ->leftjoin('request', 'request.assessment_id', '=', 'assessment.id')
+                ->where('request.users_id', Auth::id())
+                ->select('properties.lot_number', 'properties.owner','properties.parcel_id')
+                ->get()
+                ->keyBy('parcel_id');
+        }
+
+        // Block unauthorized search results
+        if (!isset($properties[$lot])) {
+            return [
+                'type' => 'FeatureCollection',
+                'features' => []
+            ];
+        }
+
+        // Load GeoJSON
         $geojsonPath = public_path('geojson/inopacan_geojson.geojson');
         $geoData = json_decode(file_get_contents($geojsonPath), true);
 
-        $properties = Property::select('lot_number', 'owner')
-            ->get()
-            ->keyBy('lot_number');
-
         foreach ($geoData['features'] as $feature) {
-            if (($feature['properties']['LotNumber'] ?? '') == $lot) {
+            if (($feature['properties']['ID'] ?? '') == $lot) {
 
-                if (isset($properties[$lot])) {
-                    $feature['properties']['Owner'] = $properties[$lot]->owner;
-                }
+                $feature['properties']['Owner'] = $properties[$lot]->owner;
 
                 return [
                     'type' => 'FeatureCollection',

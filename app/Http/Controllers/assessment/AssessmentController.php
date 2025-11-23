@@ -198,19 +198,36 @@ class AssessmentController extends Controller
   }
   public function viewPdf($id)
   {
+    $OIC_Municilap_Assessor = Assessor::where('role', '=', 'OIC Municilap Assessor')
+                                ->whereNull('deleted_at')
+                                ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
+                                ->first();
+    $Technical_Supervisor = Assessor::where('role', '=', 'Technical Supervisor')
+                                ->whereNull('deleted_at')
+                                ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
+                                ->first();
+
+    $Assessment_Clerk_1 = Assessor::where('role', '=', 'Assessment Clerk 1')
+                                ->whereNull('deleted_at')
+                                ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
+                                ->first();
+
     $properties = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
       ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
       ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
       ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
       ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
-      ->select('assessor.*', 'properties.property_type as property_classification','properties.*', 'assessment.id as assessment_id', 'assessment.date as assessment_date', 'market_value.value as market_value_data', 'property_type.assessment_rate', 'properties.status as property_status', 'property_list.name as ActualUse', 'properties.created_at as created_at', 'assessment.*','properties.address as property_address')
+      ->select('assessor.*', 'property_list.name as property_classification','properties.*', 'assessment.id as assessment_id', 'assessment.date as assessment_date', 'market_value.value as market_value_data', 'property_type.assessment_rate', 'properties.status as property_status', 'property_list.name as ActualUse', 'properties.created_at as created_at', 'assessment.*','properties.address as property_address')
       ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
       ->where('properties.id', '=', Crypt::decryptString($id))
       ->whereNull('assessment.deleted_at')
       ->orderBy('properties.created_at', 'Desc')->first();
 
     $pdf = Pdf::loadView('pdf.assessment-pdf', [
-        'properties' => $properties
+        'properties' => $properties,
+        'Assessment_Clerk_1' => $Assessment_Clerk_1,
+        'Technical_Supervisor' => $Technical_Supervisor,
+        'OIC_Municilap_Assessor' => $OIC_Municilap_Assessor
     ]);
 
     return $pdf->setPaper('A4', 'portrait')
@@ -246,12 +263,13 @@ class AssessmentController extends Controller
     $properties->transform(function ($item) {
         $item->assessment_id = Crypt::encryptString($item->assessment_id);
         $item->property_id = Crypt::encryptString($item->building_id);
+        $item->ids = Crypt::encryptString($item->id);
           return $item;
       });
-
     $assessmentCount = $properties->count();
     $complete = Building::count();
     $pending = $assessmentCount - $complete;
+
     return view('content.building.building-assessment', compact('properties','classification', 'assessmentCount', 'complete', 'pending'));
   }
   public function lazyLoadBuilding(Request $request)
@@ -298,6 +316,7 @@ class AssessmentController extends Controller
       $properties->transform(function ($item) {
         $item->assessment_id = Crypt::encryptString($item->assessment_id);
         $item->property_id = Crypt::encryptString($item->building_id);
+        $item->ids = Crypt::encryptString($item->id);
           return $item;
       });
 
@@ -369,21 +388,42 @@ class AssessmentController extends Controller
   }
   public function buildingPDF($id)
   {
+    $OIC_Municilap_Assessor = Assessor::where('role', '=', 'OIC Municilap Assessor')
+                                ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
+                                ->first();
+    $Technical_Supervisor = Assessor::where('role', '=', 'Technical Supervisor')
+                                ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
+                                ->first();
+
+    $Assessment_Clerk_1 = Assessor::where('role', '=', 'Assessment Clerk 1')
+                                ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
+                                ->first();
+
     $properties = Property::leftjoin('assessment', 'properties.id', '=', 'assessment.properties_id')
       ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
       ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
       ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
       ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
-      ->select('assessor.*', 'properties.property_type as property_classification','properties.*', 'assessment.id as assessment_id', 'assessment.date as assessment_date', 'market_value.value as market_value_data', 'property_type.assessment_rate', 'properties.status as property_status', 'property_list.name as ActualUse', 'properties.created_at as created_at', 'assessment.*','properties.address as property_address')
+      ->leftjoin('building', 'building.assessment_id', '=', 'assessment.id')
+      ->leftjoin('building_type', 'building_type.id', '=', 'building.building_type')
+      ->select('assessor.*', 'properties.property_type as property_classification','properties.*',
+                'assessment.id as assessment_id', 'assessment.date as assessment_date',
+                'market_value.value as market_value_data', 'property_type.assessment_rate',
+                'properties.status as property_status', 'property_list.name as ActualUse',
+                'properties.created_at as created_at', 'assessment.*',
+                'properties.address as property_address', 'building.*', 'building_type.*', 'building.created_at as inspection_date')
       ->selectRaw("CONCAT(assessor.firstname, ' ', assessor.middlename, ' ', assessor.lastname) as fullname")
       ->where('properties.id', '=', Crypt::decryptString($id))
       ->whereNull('assessment.deleted_at')
       ->orderBy('properties.created_at', 'Desc')->first();
 
     $pdf = Pdf::loadView('pdf.assessment-building', [
-        'properties' => $properties
+        'properties' => $properties,
+        'OIC_Municilap_Assessor' => $OIC_Municilap_Assessor,
+        'Technical_Supervisor' => $Technical_Supervisor,
+        'Assessment_Clerk_1' => $Assessment_Clerk_1
     ]);
-
+  //dd($properties);
     return $pdf->setPaper('A4', 'portrait')
                ->stream('Real Property Field Appraisal & Assessment Sheet.pdf');
   }
