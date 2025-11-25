@@ -72,10 +72,11 @@
         </header>
 
     <main>
-        <input type="text" id="search-lot" placeholder="Search parcel id"
-               class="form-control form-control-sm mb-2" style="width: 500px;">
+        <input type="text" id="search-lot" placeholder="Search parcel id" class="form-control form-control-sm mb-2" style="width: 500px;">
 
-        <div id="map" style="height: 700px; width: 100%; position: relative;"></div>
+        <div class="card">
+          <div id="map" style="height: 700px; width: 100%; position: relative;"></div>
+        </div>
     </main>
 </div>
 

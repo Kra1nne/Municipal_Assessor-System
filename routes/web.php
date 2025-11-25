@@ -27,6 +27,7 @@ use App\Http\Controllers\authentications\ForgotPasswordBasic;
 use App\Http\Controllers\request\RequestController;
 use App\Http\Controllers\land\LandPropertyController;
 use App\Http\Controllers\building\BuildingController;
+use App\Http\Controllers\GoogleAuthController;
 
 
 Route::middleware(['guest', 'throttle:web'])->group(function () {
@@ -35,6 +36,10 @@ Route::middleware(['guest', 'throttle:web'])->group(function () {
 
   Route::get('/', [LoginBasic::class, 'index'])->name('login');
   Route::post('/login/process', [LoginBasic::class, 'login'])->name('login-process')->middleware(['throttle:login']);
+
+  Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect')->middleware(['throttle:login']);
+  Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback')->middleware(['throttle:login']);
+
 
   Route::get('/register', [RegisterBasic::class, 'index'])->name('auth-register');
   Route::get('/forgot-password', [ForgotPasswordBasic::class, 'index'])->name('auth-reset-password');

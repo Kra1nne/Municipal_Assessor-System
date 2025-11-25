@@ -114,7 +114,7 @@ class MapController extends Controller
               });
         }
 
-
+        // dd($properties);
         $total = $this->formatAbbreviatedPHP($totalAssessedValue);
 
         return view('content.map.gis', compact('countall', 'countReview', 'countComplete', 'total'));
@@ -219,7 +219,14 @@ class MapController extends Controller
         $role = Auth::user()->role;
 
         if ($role == "Admin" || $role == "Employee") {
-            $properties = Property::select('lot_number', 'owner')->get()->keyBy('lot_number');
+            $properties = Property::leftJoin('assessment', 'properties.id', '=', 'assessment.properties_id')
+                ->leftjoin('assessor', 'assessment.assessor_id', '=', 'assessor.id')
+                ->leftjoin('property_type', 'assessment.property_type', '=', 'property_type.id')
+                ->leftjoin('market_value', 'assessment.market_id', '=', 'market_value.id')
+                ->leftjoin('property_list', 'market_value.property_list', '=', 'property_list.id')
+                ->select('properties.lot_number', 'properties.owner','properties.parcel_id')
+                ->get()
+                ->keyBy('parcel_id');
         } else {
 
             $properties = Property::leftJoin('assessment', 'properties.id', '=', 'assessment.properties_id')

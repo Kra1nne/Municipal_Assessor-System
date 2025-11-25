@@ -6,7 +6,6 @@ $(document).ready(function () {
   let declineRequest = 0;
   function dataHeader(request) {
     request.forEach(request => {
-      console.log(totalAssessment);
       totalAssessment++;
       request.status === 'Request' ? assessmentUnderReview++ : '';
       request.status === 'Success' ? assessmentComplete++ : '';
